@@ -26,10 +26,13 @@ rule bamsurgeon_addsnv:
         bai="data/reads/mapped/germline/realigned/split/{sample}.{reference}.{mapper}.{caller}.hap_{haplotype}.sorted.bam.bai",
         snv_bed="data/variants/somatic/bamsurgeon/{sample}_{tumour}.{reference}.hap_{haplotype}.snv.bed"
     output:
-        bam="data/reads/mapped/somatic/split/{sample}_{tumour}.{reference}.{mapper}.{caller}.hap_{haplotype}.snv.bam"
+        bam="data/reads/mapped/somatic/split/{sample}_{tumour}.{reference}.{mapper}.{caller}.hap_{haplotype}.snv.bam",
+        vcf=temp("{sample}_{tumour}.{reference}.{mapper}.{caller}.hap_{haplotype}.snv.addsnv.{sample}_{tumour}.{reference}.hap_{haplotype}.snv.vcf"),
+        logs=temp(directory("addsnv_logs_{sample}_{tumour}.{reference}.{mapper}.{caller}.hap_{haplotype}.snv.bam"))
     wildcard_constraints:
         haplotype="[0-9]+"
     params:
+        path_hack="/opt/conda/envs/bamsurgeon/bin:/opt/bamsurgeon/bin",
         tmp_dir="data/reads/mapped/somatic/split/{sample}_{tumour}.{reference}.{mapper}.{caller}.hap_{haplotype}.addsnv",
         seed=int(config["seed"])
     threads: int(config["threads"])
@@ -39,8 +42,8 @@ rule bamsurgeon_addsnv:
          "docker://dancooke/bamsurgeon"
     shell:
         """
-        export PATH=/opt/conda/envs/bamsurgeon/bin:$PATH
-        (python /opt/bamsurgeon/bin/addsnv.py \
+        export PATH={params.path_hack}:$PATH
+        (addsnv.py \
             -r {input.reference} \
             -f {input.bam} \
             -v {input.snv_bed} \
@@ -57,8 +60,8 @@ rule bamsurgeon_addsnv:
             --tmpdir {params.tmp_dir} \
         )&> {log}
         ln -sr {input.bam} {output.bam} || true
-        rm -r addsnv*bam
-        rm -r {params.tmp_dir} || true
+        rm -rf {params.tmp_dir}
+        touch {output.vcf}
         """
 
 rule bamsurgeon_addindel:
@@ -69,9 +72,12 @@ rule bamsurgeon_addindel:
         indel_bed="data/variants/somatic/bamsurgeon/{sample}.{reference}.hap_{haplotype}.indel.bed"
     output:
         bam="data/reads/mapped/somatic/split/{sample}.{reference}.{mapper}.{caller}.hap_{haplotype}.bam",
+        vcf=temp("{sample}.{reference}.{mapper}.{caller}.hap_{haplotype}.addindel.{sample}.{reference}.hap_{haplotype}.indel.vcf"),
+        logs=temp(directory("addindel_logs_{sample}.{reference}.{mapper}.{caller}.hap_{haplotype}.bam"))
     wildcard_constraints:
         haplotype="[0-9]+"
     params:
+        path_hack="/opt/conda/envs/bamsurgeon/bin:/opt/bamsurgeon/bin",
         tmp_dir="data/reads/mapped/somatic/split/{sample}.{reference}.{mapper}.{caller}.hap_{haplotype}.addindel",
         seed=int(config["seed"])
     threads: int(config["threads"])
@@ -81,8 +87,8 @@ rule bamsurgeon_addindel:
          "docker://dancooke/bamsurgeon"
     shell:
         """
-        export PATH=/opt/conda/envs/bamsurgeon/bin:$PATH
-        (python /opt/bamsurgeon/bin/addindel.py \
+        export PATH={params.path_hack}:$PATH
+        (addindel.py \
             -r {input.reference} \
             -f {input.bam} \
             -v {input.indel_bed} \
@@ -97,8 +103,8 @@ rule bamsurgeon_addindel:
             --tmpdir {params.tmp_dir} \
         )&> {log}
         ln -sr {input.bam} {output.bam} || true
-        rm -r addindel*bam
-        rm -r {params.tmp_dir} || true
+        rm -rf {params.tmp_dir}
+        touch {output.vcf}
         """
 
 rule merge_bams:
@@ -111,4 +117,7 @@ rule merge_bams:
         "../envs/samtools.yaml"
     threads: int(config["threads"])
     shell:
-        "samtools merge -@{threads} -o {output} {input}"
+        """
+        samtools merge -@{threads} -o {output} {input}
+        rm -f add*.*.muts.bam
+        """ # Cleaning up files here from bamsurgen as names are random!
