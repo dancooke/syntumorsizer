@@ -15,7 +15,7 @@ def make_bamurgeon_record(rec, cn):
     vaf = cn * rec.info["VAF"]
     if is_indel(rec):
         if is_del(rec):
-            result += [rec.start, rec.stop]
+            result += [rec.pos, rec.stop]
             result += [vaf, 'DEL']
         else:
             result += [rec.stop, rec.stop]
