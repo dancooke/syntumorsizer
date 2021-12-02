@@ -24,3 +24,5 @@ rule link_germline_fastq:
         "data/reads/raw/germline/{sample}_R{strand}.fastq.gz"
     shell:
         "ln -sr {input} {output}"
+
+localrules: link_germline_fastq
