@@ -13,11 +13,11 @@ def count_records(vcf_path):
 
 def get_germline_copy_numbers(chrom, sex):
     if "Y" in chrom:
-        return 1, 0 if sex == "male" else 0, 0
+        return (1, 0) if sex == "male" else (0, 0)
     elif "X" in chrom:
-        return 1, 0 if sex == "male" else 1, 1
+        return (1, 0) if sex == "male" else (1, 1)
     else:
-        return 1, 1
+        return (1, 1)
 
 def choose_clone(clone_probs):
     return random.choices(range(len(clone_probs)), weights=clone_probs)[0]
