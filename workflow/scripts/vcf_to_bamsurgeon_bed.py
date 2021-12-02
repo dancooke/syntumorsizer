@@ -19,7 +19,7 @@ def make_bamurgeon_record(rec, cn):
             result += [vaf, 'DEL']
         else:
             result += [rec.stop, rec.stop]
-            result += [vaf, 'INS', rec.alts[0]]
+            result += [vaf, 'INS', rec.alts[0][1:]]
     else:
         result += [rec.pos, rec.pos]
         result += [vaf, rec.alts[0]]
