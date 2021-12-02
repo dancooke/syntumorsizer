@@ -1,0 +1,30 @@
+include: "rules/data.smk"
+include: "rules/mapping.smk"
+include: "rules/octopus.smk"
+include: "rules/mutagenesis.smk"
+include: "rules/bamsurgeon.smk"
+include: "rules/utils.smk"
+
+assert config is not None
+
+somatic_variants = [
+    f"results/{config['sample']}_{config['tumour']}.{config['reference']}.vcf.gz",
+    f"results/{config['sample']}_{config['tumour']}.{config['reference']}.vcf.gz.tbi"
+]
+
+somatic_fastqs = expand("results/{sample}_{tumour}_R{strand}.fastq.gz", \
+                        sample=config["sample"], tumour=config["tumour"], strand=[1, 2])
+
+if "bamout" in config and config["bamout"]:
+    bams = [
+        f"results/{config['sample']}_{config['tumour']}.{config['reference']}.{config['mapper']}.bam",
+        f"results/{config['sample']}_{config['tumour']}.{config['reference']}.{config['mapper']}.bam.bai"
+    ]
+else:
+    bams = []
+
+rule all:
+    input:
+        somatic_variants,
+        somatic_fastqs,
+        bams

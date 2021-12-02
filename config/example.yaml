@@ -1,0 +1,24 @@
+# Germline sample
+sample: NA24385
+sex: male
+germline_fastqs:
+  - example/HG002_TP53_R1.fastq.gz
+  - example/HG002_TP53_R2.fastq.gz
+
+# Tools to haplotag and realign reads for spike-in
+reference: hs37d5
+mapper: bwa-mem
+caller: octopus
+octopus: --min-forest-quality 1
+regions: example/TP53_b37.bed # optional
+
+# Tumour specification
+tumour: COAD
+source_vcf: example/PCAWG_COAD_TP53.vcf.gz # must match reference
+tumour_purity: 0.8
+subclone_ccfs: [0.2] # one per subclone
+mutation_rates: [1e-5, 2e-4] # one per clone (subclones + 1)
+seed: 13
+
+bamout: True
+threads: 20

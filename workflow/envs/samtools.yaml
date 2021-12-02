@@ -1,0 +1,9 @@
+name: samtools
+channels:
+    - bioconda
+    - conda-forge
+    - defaults
+dependencies:
+    - tabix=1.11
+    - samtools=1.13
+    - bcftools=1.13
