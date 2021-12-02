@@ -24,7 +24,7 @@ You'll need to complete a YAML file specifying the inputs and parameters. An exa
 To run the bundled example locally:
 
 ```shell
-$ snakemake --configfile config/example.yaml --cores 16 --use-conda --use-singularity
+$ snakemake --configfile config/example.yaml --cores 16 --use-conda --use-singularity --singularity-args "-B /run"
 ```
 
 Once the workfow is complete, you should find a directory `results` including:
