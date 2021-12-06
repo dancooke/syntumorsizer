@@ -55,7 +55,7 @@ rule bamsurgeon_addsnv:
             --ignoresnps \
             --ignorepileup \
             --aligner ssw \
-            --haplosize 200 \
+            --haplosize 300 \
             --seed {params.seed} \
             --tmpdir {params.tmp_dir} \
         )&> {log}
