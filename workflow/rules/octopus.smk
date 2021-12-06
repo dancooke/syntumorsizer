@@ -71,6 +71,7 @@ rule octopus_realign:
          -x 500 \
          --lagging-level OPTIMISTIC \
          --backtrack-level AGGRESSIVE \
+         --min-protected-haplotype-posterior 1e5 \
          --bamout {output.bam} \
          --bamout-type FULL \
          )2> {log}"
