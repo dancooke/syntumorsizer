@@ -68,10 +68,10 @@ rule octopus_realign:
          --threads {threads} \
          --disable-denovo-variant-discovery \
          --source-candidates {input.source_vcf} \
-         -x 500 \
+         --max-haplotypes 500 \
          --lagging-level OPTIMISTIC \
          --backtrack-level AGGRESSIVE \
-         --min-protected-haplotype-posterior 1e5 \
+         --min-protected-haplotype-posterior 1e-5 \
          --bamout {output.bam} \
          --bamout-type FULL \
          )2> {log}"
