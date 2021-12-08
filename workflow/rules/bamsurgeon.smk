@@ -2,8 +2,8 @@ rule split_bam:
     input:
         "data/reads/mapped/germline/realigned/haplotagged/{sample}.{reference}.{mapper}.{caller}.bam"
     output:
-        expand("data/reads/mapped/germline/realigned/split/{{sample}}.{{reference}}.{{mapper}}.{{caller}}.hap_{haplotype}.bam", 
-               haplotype=[0, 1])
+        temp(expand("data/reads/mapped/germline/realigned/split/{{sample}}.{{reference}}.{{mapper}}.{{caller}}.hap_{haplotype}.bam", 
+                    haplotype=[0, 1]))
     conda:
         "../envs/py39.yaml"
     script:
@@ -26,7 +26,7 @@ rule bamsurgeon_addsnv:
         bai="data/reads/mapped/germline/realigned/split/{sample}.{reference}.{mapper}.{caller}.hap_{haplotype}.sorted.bam.bai",
         snv_bed="data/variants/somatic/bamsurgeon/{sample}_{tumour}.{reference}.hap_{haplotype}.snv.bed"
     output:
-        bam="data/reads/mapped/somatic/split/{sample}_{tumour}.{reference}.{mapper}.{caller}.hap_{haplotype}.snv.bam",
+        bam=temp("data/reads/mapped/somatic/split/{sample}_{tumour}.{reference}.{mapper}.{caller}.hap_{haplotype}.snv.bam"),
         vcf=temp("{sample}_{tumour}.{reference}.{mapper}.{caller}.hap_{haplotype}.snv.addsnv.{sample}_{tumour}.{reference}.hap_{haplotype}.snv.vcf"),
         logs=temp(directory("addsnv_logs_{sample}_{tumour}.{reference}.{mapper}.{caller}.hap_{haplotype}.snv.bam"))
     wildcard_constraints:
@@ -112,7 +112,7 @@ rule merge_bams:
         expand("data/reads/mapped/somatic/split/{{sample}}.{{reference}}.{{mapper}}.{{caller}}.hap_{haplotype}.bam",
                haplotype=[0, 1])
     output:
-        "data/reads/mapped/somatic/merged/{sample}.{reference}.{mapper}.{caller}.bam"
+        temp("data/reads/mapped/somatic/merged/{sample}.{reference}.{mapper}.{caller}.bam")
     conda:
         "../envs/samtools.yaml"
     threads: int(config["threads"])

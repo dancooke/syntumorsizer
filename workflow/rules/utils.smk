@@ -57,8 +57,8 @@ rule bam_to_fastqs:
     input:
         f"data/reads/mapped/somatic/merged/{{sample}}.{config['reference']}.{config['mapper']}.{config['caller']}.bam"
     output:
-        expand("data/reads/raw/somatic/incomplete/{{sample}}_{end}.fastq.gz",
-               end=["R1", "R2", "single", "unpaired"])
+        temp(expand("data/reads/raw/somatic/incomplete/{{sample}}_{end}.fastq.gz",
+                    end=["R1", "R2", "single", "unpaired"]))
     conda:
         "../envs/samtools.yaml"
     threads: int(config["threads"])
