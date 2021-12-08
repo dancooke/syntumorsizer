@@ -57,7 +57,7 @@ rule bam_to_fastqs:
     input:
         f"data/reads/mapped/somatic/merged/{{sample}}.{config['reference']}.{config['mapper']}.{config['caller']}.bam"
     output:
-        expand("data/reads/raw/somatic/{{sample}}_{end}.fastq.gz",
+        expand("data/reads/raw/somatic/incomplete/{{sample}}_{end}.fastq.gz",
                end=["R1", "R2", "single", "unpaired"])
     conda:
         "../envs/samtools.yaml"
@@ -70,19 +70,21 @@ rule bam_to_fastqs:
 
 rule complete_fastqs:
     input:
-        somatic_fq1="data/reads/raw/somatic/{sample}_{tumour}_R1.fastq.gz",
-        somatic_fq2="data/reads/raw/somatic/{sample}_{tumour}_R2.fastq.gz",
-        somatic_single="data/reads/raw/somatic/{sample}_{tumour}_single.fastq.gz",
-        somatic_unpaired="data/reads/raw/somatic/{sample}_{tumour}_unpaired.fastq.gz",
+        somatic_fq1="data/reads/raw/somatic/incomplete/{sample}_{tumour}_R1.fastq.gz",
+        somatic_fq2="data/reads/raw/somatic/incomplete/{sample}_{tumour}_R2.fastq.gz",
+        somatic_single="data/reads/raw/somatic/incomplete/{sample}_{tumour}_single.fastq.gz",
+        somatic_unpaired="data/reads/raw/somatic/incomplete/{sample}_{tumour}_unpaired.fastq.gz",
         germline_fq1="data/reads/raw/germline/{sample}_R1.fastq.gz",
         germline_fq2="data/reads/raw/germline/{sample}_R2.fastq.gz"
     output:
-        fq1="results/{sample}_{tumour}_R1.fastq.gz",
-        fq2="results/{sample}_{tumour}_R2.fastq.gz"
+        fq1="data/reads/raw/somatic/{sample}_{tumour}_R1.fastq.gz",
+        fq2="data/reads/raw/somatic/{sample}_{tumour}_R2.fastq.gz"
     conda:
         "../envs/py39.yaml"
     script:
         "../scripts/complete_fastqs.py"
+
+ruleorder: bam_to_fastqs > complete_fastqs
 
 rule link_variants:
     input:
@@ -99,6 +101,21 @@ rule link_variants:
 
 localrules: link_variants
 ruleorder: link_variants > tabix_vcf
+
+rule link_fastqs:
+    input:
+        "data/reads/raw/somatic/{sample}_{tumour}_R1.fastq.gz",
+        "data/reads/raw/somatic/{sample}_{tumour}_R2.fastq.gz"
+    output:
+        "results/{sample}_{tumour}_R1.fastq.gz",
+        "results/{sample}_{tumour}_R2.fastq.gz"
+    shell:
+        """
+        ln -sr {input[0]} {output[0]}
+        ln -sr {input[1]} {output[1]}
+        """
+
+localrules: link_fastqs
 
 rule link_bam:
     input:
