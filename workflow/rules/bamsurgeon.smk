@@ -54,7 +54,7 @@ rule bamsurgeon_addsnv:
             --force \
             --ignoresnps \
             --ignorepileup \
-            --aligner ssw \
+            --aligner . \
             --haplosize 300 \
             --seed {params.seed} \
             --tmpdir {params.tmp_dir} \
@@ -98,7 +98,7 @@ rule bamsurgeon_addindel:
             --mindepth 1 \
             --force \
             --ignorepileup \
-            --aligner ssw \
+            --aligner . \
             --seed {params.seed} \
             --tmpdir {params.tmp_dir} \
         )&> {log}
